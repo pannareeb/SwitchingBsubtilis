@@ -6,8 +6,8 @@ The file details are listed below
 
 Method1: Data processing 
 
-#Part 1: basic data processing - import data into two data frames, clean (end + base removed), and visualisation 
-#Part 2: focused data processing - plotting the movement of the front with several front thresholds and maximum signals of YFP or RFP
+ #Part 1: basic data processing - import data into two data frames, clean (end + base removed), and visualisation 
+ #Part 2: focused data processing - plotting the movement of the front with several front thresholds and maximum signals of YFP or RFP
 
 Method2: single cell IRL-ODE model
 
