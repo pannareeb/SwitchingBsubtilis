@@ -20,6 +20,7 @@ Method3: biofilm level NuBac-PDE model
 
 Method4: Pending
 
-Method1HPC: Scanning Db (diffusion coefficient of bacteria in NuBac-PDE), nr and ny (fluorescence coefficients of RFP and YFP, respectively)
 
 Method2HPC: Scanning the effect of noises on % of switch with either highR0 or lowR0 iniitial condition set. Used with HPC.  
+
+Method3HPC: Scanning Db (diffusion coefficient of bacteria in NuBac-PDE), nr and ny (fluorescence coefficients of RFP and YFP, respectively)
