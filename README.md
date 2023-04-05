@@ -17,3 +17,9 @@ Method3: biofilm level NuBac-PDE model
 1. #Part 1: create model
 2. #Part 2: run deterministic PDE and visualisation
 3. #Part 3: PDE parameterisation - scanning the diffusion coefficient of bacteria (Db) using loss function of the front movement difference
+
+Method4: Pending
+
+Method1HPC: Scanning Db (diffusion coefficient of bacteria in NuBac-PDE), nr and ny (fluorescence coefficients of RFP and YFP, respectively)
+
+Method2HPC: Scanning the effect of noises on % of switch with either highR0 or lowR0 iniitial condition set. Used with HPC.  
