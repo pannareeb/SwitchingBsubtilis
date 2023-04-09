@@ -1,0 +1,42 @@
+#!/bin/bash
+#!
+#! Example SLURM job script for pb746's project using Julia and high memory Skylake
+#! Last updated: 10 Apr 2023
+#!
+#!#############################################################
+#!#### Modify the options in this section as appropriate ######
+#!#############################################################
+#! sbatch directives begin here ###############################
+#! Name of the job:
+#SBATCH -J run_sims_test
+#! Which project should be charged:
+#SBATCH -A FUSCO-SL3-CPU
+#! Number of nodes to be allocated for the job (for single core jobs always leave this at 1)
+#SBATCH --nodes=1
+#! Number of tasks. By default SLURM assumes 1 task per node and 1 CPU per task. (for single core jobs always leave this at 1)
+#SBATCH --ntasks=1
+#! How many many cores will be allocated per task? (for single core jobs always leave this at 1)
+#SBATCH --cpus-per-task=1
+#! How much wallclock time will be required?. Th emaximum is 10 hrs for the partition we can use
+#SBATCH --time=10:00:00
+#! Estimated maximum memory needed (job is force-stopped if exceeded)
+#SBATCH --mem=40G
+#! This is the partition name. Need skylake-himem for expecially for rumming stochastic runs for ≥100 times
+#SBATCH -p skylake-himem
+
+#! Don't put any #SBATCH directives below this line
+#! Modify the environment seen by the application. For this work, we need to add Julia-specific modules.
+. /etc/profile.d/modules.sh # This line enables the module command
+module purge                # Removes all modules still loaded
+module load rhel7/default-peta4            # REQUIRED - loads the basic environment
+module load intel/bundles/complib/2017.4
+module load gcc-5.4.0-gcc-4.8.5-fis24gg
+module load gcc-7.2.0-gcc-4.8.5-pqn7o2k
+module load julia/1.7.3                    # REQUIRED for Julia
+
+#! Command line that we want to run:
+julia NameOfJuliaFile.jl
+
+#! Save thsi file as "No extension" or "Plain text" ("Rich Text File" does not work).
+
+
