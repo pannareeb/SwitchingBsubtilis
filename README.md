@@ -3,7 +3,6 @@
 This is part of MSc Systems Biology course, University of Cambridge, 2022/2023, carried out over 6 months.
 
 __________________________//////////////////////////__________________________
-
 The folders are:
 1. Doc - the write-up of this project (Pending)
 2. ExperimentalData - biofilm data of YFP reporter (motile cells) and RFP reporter (matrix cells), described in the write-up
@@ -14,6 +13,7 @@ The folders are:
 __________________________//////////////////////////__________________________
 
 The details of all code files are listed below.
+
 (Note that the names of files follow the section "Materials and Methods" in the write-up of this work (In Doc folder). Hence, the Method 4 in the write-up, which is the parameterisation, was part of the file Method2 and Method3 in this Github). 
 ____________________________________________________
 Method1_local: Data processing 
