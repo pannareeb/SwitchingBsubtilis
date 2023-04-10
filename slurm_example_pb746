@@ -38,5 +38,5 @@ module load julia/1.7.3                    # REQUIRED for Julia
 julia NameOfJuliaFile.jl
 
 #! Save thsi file as "No extension" or "Plain text" ("Rich Text File" does not work).
-
+#!  when using it ) upload it into the HPC home, then 2) run "sbatch slurm_example_pb746"
 
