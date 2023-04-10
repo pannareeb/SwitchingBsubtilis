@@ -41,8 +41,12 @@ ____________________________________________________
 ____________________________________________________
 Method5_HPC: Creating the lookup tables for %Motile phase (and %Matrix phase) with a high R0 ic and low R0 ic, created by a given combination of the complexing constants. Note that to prevent time-limit exceeding, spliting cases into several files are recommendend. The range of each of the complexing constants to create the entries for was no need to be more than 10.
 
-Method5_1_local: Using the NuBac-PDE model prediction with the lookup tables (created by stoIRL ODE runs), to form a loss function g(cf) that calculate the sum of squared deviation between the two. It is then optimised using Optim.jl and visualisation.
+Method5_1_local: 
+1. Using the NuBac-PDE model prediction with the lookup tables (created by stoIRL ODE runs), to form a loss function g(cf) that calculate the sum of squared deviation between the two. 
+2. It is then optimised using Optim.jl and visualisation.
 
-Method5_2_local: Using the parameterised link function from Method5.1 to predict the system behaviours og the gorwing biofilm with and without the noise included.
+Method5_2_local: Using the parameterised link function from Method5.1 to predict the system behaviours of the growing biofilm 
+1. detIRL run - without noise included 
+2. stoIRL run - with noise included
 ____________________________________________________
 
