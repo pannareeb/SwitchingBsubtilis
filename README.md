@@ -9,7 +9,7 @@ The folders are:
 2. ExperimentalData - biofilm data of YFP reporter (motile cells) and RFP reporter (matrix cells), described in the write-up
 3. SupplementaryVideo - video of data or the simulation outputs, described in the write-up
 4. DataSimOut-ForOptimise - normalised YFP and RFP signals and the simulation output of nutrient and bacterial density given by the fitted NuBacPDE, and the look-up tables from stoIRL run with specific complexing constants (i.e. the outputs of Method 1-4, which are the inputs of Method 5)
-5. FinalSimOut 
+5. FinalSimOut  (Pending)
 
 __________________________//////////////////////////__________________________
 
