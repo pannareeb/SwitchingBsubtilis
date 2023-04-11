@@ -1,11 +1,12 @@
-# SwitchingBsubtilis
+# 🦠SwitchingBsubtilis
 
 This is part of MSc Systems Biology course, University of Cambridge, 2022/2023, carried out over 6 months.
 ____________________________________________________ 
 
-\\\\\\\\\💻🦠//////////
+\\\\\\\\\🦠//////////
 
 The folders are:
+
 1. Doc - the write-up of this project (Pending)
 2. ExperimentalData - biofilm data of YFP reporter (motile cells) and RFP reporter (matrix cells), described in the write-up
 3. SupplementaryVideo - video of data or the simulation outputs, described in the write-up
@@ -13,7 +14,7 @@ The folders are:
 5. FinalSimOut  (Pending)
 ____________________________________________________
 
-\\\\\\\\\💻🦠//////////
+\\\\\\\\\🦠//////////
 
 The details of all code files are listed below.
 
@@ -49,4 +50,6 @@ ____________________________________________________
 1. detIRL run - without noise included 
 2. stoIRL run - with noise included
 ____________________________________________________
+
+🧫slurm_example: slurm plain text file to be used for running julia in HPC.
 
