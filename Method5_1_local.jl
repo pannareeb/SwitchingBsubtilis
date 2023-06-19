@@ -1,4 +1,4 @@
-#need the outcome from Method5 HPC - the lookup tables
+#need the outcome from Method5 HPC - the lookup tables and the outcome of this code will be used in 5.2
 #Method 5.1 - Optimisation pipeline
 import Pkg
 Pkg.add("Catalyst")
@@ -230,6 +230,117 @@ listofmodelID #the final model IDs we will use for finding Detstate
 plot(n,dLfitted_array[:,listofmodelID],title = "fitted-δL", palette = colbynOptround,m = :hexagon, ms = 2, xlab = "Nutrient (n)", ylab = "dILf(n) output - δL",legendfontsize = 8, fgcolorlegend = false, bgcolorlegend = false, label = true, msw=0.1, legendposition = :bottomleft)
 plot(n,dIfitted_array[:,listofmodelID],title = "fitted-δI", palette = colbynOptround,m = :hexagon, ms = 2, xlab = "Nutrient (n)", ylab = "dILf(n) output - δI",legendfontsize = 8, fgcolorlegend = false, bgcolorlegend = false, label = true, msw=0.1)
 
+#part 4: Intial checks of the model by inputting cf
+#4.1 function that gives out finalPMot,bMotile_table, glosstosum, ditableRaw, dltableRaw,ditableAdj,dltableAdj
+function gloss_global(cf) 
+    glosstosum = similar(halfn)
+    finalPMot_fromHR0 = similar(halfn)
+    finalPMot_fromLR0 = similar(halfn)
+    finalPMot = similar(halfn) 
+    bMotile_table = similar(halfn) 
+    ditableRaw= similar(halfn)
+    dltableRaw = similar(halfn)
+    ditableAdj= similar(halfn)
+    dltableAdj= similar(halfn)
+    nr = 0.15
+    ny = 0.40
+    dI_span = 0:10
+    dL_span = 0:10 
+    bMotile = 0
+    bMatrix = 0
+    δI_f = 0
+    δL_f = 0
+    mdi_ix = 0
+    mdl_ix = 0
+    setMinTime = 0
+    setMaxTime = 0
+    for i in 1:size(glosstosum,1)
+        for j in 1:size(glosstosum,2)
+            #define experimental data
+            YFP = spreadYFPm_g[i,j]
+            RFP = spreadRFPm_g[i,j]
+            #define model prediction - to be used later
+            n = halfn[i,j]
+            b = halfb[i,j]
+            #define δI and δL from the link function, 
+            #with the rounding to 0.5, given a predicted n
+            #δI_f = (floor(dIL_f(cf,n)[1]))# + floor(dIL_f(cf,n)[1]))/2
+            #δL_f = (floor(dIL_f(cf,n)[2]))# + floor(dIL_f(cf,n)[2]))/2
+            # #with the rounding to whole number 
+            # δI_f = floor(dIL_f(cf,n)[1])
+            # δL_f = floor(dIL_f(cf,n)[2])
+            δI_f = dIL_f(cf,n)[1]
+            δL_f= dIL_f(cf,n)[2]
+            ditableRaw[i,j] = δI_f
+            dltableRaw[i,j] = δL_f
+            #make  δI_f and δL_f stay within the range for search 
+            if (δI_f < minimum(dI_span))
+                δI_f = minimum(dI_span) 
+                setMinTime = setMinTime+1
+
+            end
+            if (δL_f < minimum(dL_span))
+                δL_f = minimum(dL_span)
+                setMinTime = setMinTime+1
+
+            end
+            if (δI_f > maximum(dI_span))
+                δI_f = maximum(dI_span)
+                setMaxTime = setMaxTime+1
+
+            end
+            if (δL_f > maximum(dL_span))
+                δL_f = maximum(dL_span)
+                setMaxTime = setMaxTime+1
+
+            end
+            δI_f = (floor(δI_f))# + floor(dIL_f(cf,n)[1]))/2
+            δL_f = (floor(δL_f))# + floor(dIL_f(cf,n)[2]))/2
+            ditableAdj[i,j] = δI_f
+            dltableAdj[i,j] = δL_f
+            #Searching in the spans to get the indices 
+            mdi_ix = searchsorted(dI_span,δI_f)[1] 
+            mdl_ix = searchsorted(dL_span,δL_f)[1]
+            #use the indices to get the percentage of Motile SS
+            #at the first time point (t=1 i.e. index j = 1), need no recalling of the previous state propbability 
+            if j == 1 
+                finalPMot_fromHR0[i,j] = percentMotileTable_HighR0[mdi_ix,mdl_ix]
+                finalPMot_fromLR0[i,j] = 0
+                finalPMot[i,j] = finalPMot_fromHR0[i,j]+finalPMot_fromLR0[i,j]
+            #at other time points, we calculated the compound probability (the table entry * how much in the previous state the cell ended up in SS corresponding to the type of the tables)
+            else 
+                #contribution from HighR0 runs
+                finalPMot_fromHR0[i,j] = percentMotileTable_HighR0[mdi_ix,mdl_ix]*finalPMot[i,j-1]
+                #contribution from LowR0 runs
+                finalPMot_fromLR0[i,j] = percentMotileTable_LowR0[mdi_ix,mdl_ix]*(1-finalPMot[i,j-1])
+                finalPMot[i,j] = finalPMot_fromHR0[i,j]+finalPMot_fromLR0[i,j]
+            end
+            bMotile = b*finalPMot[i,j]
+            bMatrix = b - bMotile
+            glosstosum[i,j] = (bMotile-ny*YFP)^2 + (bMatrix-nr*RFP)^2
+            bMotile_table[i,j] = bMotile
+        end
+        #println("fin - $(distanceYRskip[i])")
+    end
+    return  finalPMot,bMotile_table, glosstosum, ditableRaw, dltableRaw,ditableAdj,dltableAdj
+end 
+
+#4.2 test two functions and can substitute with the candidate cf
+heatmap(TimeInterval,distanceYRskip,gloss_global(cf_0)[1]) #finalPMot
+heatmap(TimeInterval,distanceYRskip,gloss_global(cf_0)[2]) #bMotile_table
+heatmap(TimeInterval,distanceYRskip,gloss_global(cf_0)[3]) #loss matrix (glosstosum)
+heatmap(TimeInterval,distanceYRskip,gloss_global(cf_0)[4]) #ditable - raw
+heatmap(TimeInterval,distanceYRskip,gloss_global(cf_0)[5]) #dltable- raw
+heatmap(TimeInterval,distanceYRskip,gloss_global(cf_0)[6]) #ditable -  within the range for search 
+heatmap(TimeInterval,distanceYRskip,gloss_global(cf_0)[7]) #dltable - within the range for search 
+
+heatmap(TimeInterval,distanceYRskip,gloss_global(answer)[1]) #finalPMot
+heatmap(TimeInterval,distanceYRskip,gloss_global(answer)[2]) #bMotile_table
+heatmap(TimeInterval,distanceYRskip,gloss_global(answer)[3]) #loss matrix
+heatmap(TimeInterval,distanceYRskip,gloss_global(answer)[4]) #ditable - raw
+heatmap(TimeInterval,distanceYRskip,gloss_global(answer)[5])  #dltable- raw
+heatmap(TimeInterval,distanceYRskip,gloss_global(answer)[6]) #ditable -  within the range for search 
+heatmap(TimeInterval,distanceYRskip,gloss_global(answer)[7]) #dltable - within the range for search 
 
 
 
