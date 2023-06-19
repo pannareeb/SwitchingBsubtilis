@@ -50,7 +50,8 @@ spreadRFPm_g = Matrix(CSV.read("spreadRFPm_g.csv", DataFrame))
 
 #create the look-up table for nMotile and nMatrix
 dI_span = 0:0.5:3
-dL_span = 0:0.5:10
+dL_span = 0:0.5:10 
+#suggested to slices the table down even when forming it with HPC as it takes long time e.g. using dL_span = [0]
 nMotileTable = Matrix{Float64}(undef, length(dI_span),length(dL_span) )
 nMatrixTable = similar(nMotileTable)
 for i in 1:length(dI_span)
