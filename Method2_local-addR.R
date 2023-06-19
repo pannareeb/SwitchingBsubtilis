@@ -1,3 +1,4 @@
+#R code for analysis of IRL model (instead of using Julia's Bifurcationkit.jl)
 library(deBif)
 #Create
 state <- c(I = 100., R = 300. , L = 100.)
@@ -13,6 +14,4 @@ IRLsys <-function(t,state,parms){
 }
 #implement
 bifurcation(IRLsys, state, parms)
-#I=2.429 R=17 L=0.003 
-#or I=62.714 R=0.178 L=43.638  to find 2 branches when scanning di
-#similar when scanning dl
+phaseplan(IRLsys, state, parms)
