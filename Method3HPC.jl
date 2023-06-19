@@ -1,4 +1,5 @@
-#Tosendto HPC
+#This is not actually in use anymore as the scanning od Db, nr, and ny fpor PDE model can be made faster by using a more corse dx scale.
+#Tosendto HPC 
 import Pkg
 Pkg.add("Catalyst")
 Pkg.add("Latexify")
