@@ -1,3 +1,4 @@
+#need the outcome from Method5 HPC - the lookup tables
 #Method 5.1 - Optimisation pipeline
 import Pkg
 Pkg.add("Catalyst")
@@ -33,8 +34,8 @@ Pkg.add("Optim")
 using Tables
 using Optim
 
-
-#import the model prediction from NuBac and the experimental data
+#Part 1: preparation
+#1.1 import the model prediction from NuBac and the experimental data
 halfn = Matrix(CSV.read("/Users/panareeboonyuen/SwitchingBsubtilis/09fminsearch/halfn_forSearch.csv", DataFrame))
 halfb = Matrix(CSV.read("/Users/panareeboonyuen/SwitchingBsubtilis/09fminsearch/halfb_forSearch.csv", DataFrame))
 spreadYFPnorm = CSV.read("spreadYFPnorm_double.csv", DataFrame)
@@ -42,9 +43,7 @@ spreadRFPnorm = CSV.read("spreadRFPnorm_double.csv", DataFrame)
 spreadYFPm_g = Matrix(spreadYFPnorm[1:2:end,:])
 spreadRFPm_g = Matrix(spreadRFPnorm[1:2:end,:])
 
-#import the tables from stoIRL run which used 100 sims, each with timespan = 20 hr
-#20 has proved to be good enough to distinguish between high Rss and low Rss case correctly
-#but there are two types of tables for percentMotileTable
+#1.2 import two types of tables for percentMotileTable
 #one using a high R0 condition 
 #the other using a low R0 condition
 
@@ -55,33 +54,18 @@ percentMotileTable_LowR0 = Matrix(CSV.read("/Users/panareeboonyuen/SwitchingBsub
 dI_span = 0:0.5:3
 dL_span = 0:0.5:10 
 
-# #small range, 0.5 resolution
-# percentMotileTable_HighR0 = Matrix(CSV.read("/Users/panareeboonyuen/SwitchingBsubtilis/10NewOptimisation/MotileTableHighR0.csv", DataFrame))./100
-# percentMotileTable_LowR0 = Matrix(CSV.read("/Users/panareeboonyuen/SwitchingBsubtilis/10NewOptimisation/MotileTableLowR0.csv", DataFrame))./100
-# #shortened dI_span and dL_span
-# dI_span = 0:0.5:2
-# dL_span =0:0.5:4
-
-# #wide range, 1.0 resolution
-# percentMotileTable_HighR0 = Matrix(CSV.read("/Users/panareeboonyuen/SwitchingBsubtilis/10NewOptimisation/TestMotileTableHighR0.csv", DataFrame))./100
-# percentMotileTable_LowR0 = Matrix(CSV.read("/Users/panareeboonyuen/SwitchingBsubtilis/10NewOptimisation/TestMotileTableLowR0.csv", DataFrame))./100
-# #shortened dI_span and dL_span
-# dI_span = 1:5
-# dL_span = 0:10 
-
-
-#visualise the percentage motile tables
+#1.3 visualise the percentage motile tables
 motile_HighR0 = contourf(dL_span,dI_span,percentMotileTable_HighR0,color=:turbo,xlab = "SinR-SlrR complexing constant (δL)", ylab = "SinR-SinI complexing constant (δI)", title = "Percentage of a cell being in a motile phase\n(a high Rss) from 100 StoIRL runs with a high R0 ic", titlefontsize = 8, guidefontsize = 8, tick_direction = :out)
 motile_LowR0 = contourf(dL_span,dI_span,percentMotileTable_LowR0,color=:turbo,xlab = "SinR-SlrR complexing constant (δL)", ylab = "SinR-SinI complexing constant (δI)", title = "Percentage of a cell being in a motile phase\n(a high Rss) from 100 StoIRL runs with a low R0 ic", titlefontsize = 8, guidefontsize = 8, tick_direction = :out)
 plot(motile_HighR0,motile_LowR0, layout = (2,1), guidefontsize = 6)
 
-#import for making distanceYRskip and TimeInterval
+#1.4 import spreadRFP for making distanceYRskip and TimeInterval
 spreadRFP = CSV.read("/Users/panareeboonyuen/SwitchingBsubtilis/04ExpDataSpread/rfp_tapa_data.csv", DataFrame)
 distanceYRskip = Vector(spreadRFP[:,1])[1:2:end]
 TimeInterval = collect(0:0.66:92.4)
 
-
-#define function "dILf(n)" that produced δI and δL from a given nutrient and coefficient
+#Part 2: set up functions for link function and the loss function to optimise
+#2.1 define function "dILf(n)" that produced δI and δL from a given nutrient and coefficient
 function dIL_f(cf,n)
     #cf is the coefficient vector and n is the nutrient
     dL = cf[1]+ cf[2]*n +cf[3]*n^2 +cf[4]*n^3 +cf[5]*n^4
@@ -90,8 +74,7 @@ function dIL_f(cf,n)
 end 
 #This link function will need to be in g for the purpose of using Optim.optimisation, but should be expressed globally as well 
 
-
-#define a function for an input cf and give out g
+#2.2 define a function for an input cf in dIL_f(cf,n) and give out g (= loss)
 #g(cf) is the loss function to be minimised by Optim.optimise using Nelder-Mead algo (default)
 function g(cf_optim)
     #define function "dILf(n)" that produced δI and δL from a given nutrient and coefficient
@@ -107,8 +90,8 @@ function g(cf_optim)
         finalPMot_fromHR0 = similar(halfn)
         finalPMot_fromLR0 = similar(halfn)
         finalPMot = similar(halfn) 
-        ny = 0.12
-        nr = 0.08
+        ny = 0.40
+        nr = 0.15
         bMotile = 0
         bMatrix = 0
         δI_f = 0
@@ -172,15 +155,14 @@ function g(cf_optim)
     return (sum_g)
 end
 
-#intial guess of cf vector - random
+#Part 3: run optimisation
+#3.1 intial guess of cf vector - random
 cf_0 = [1.,1.,1.,1.,1.,1.] .* rand(6)
 test = g(cf_0) #loss function from this guess
 
-#Optimisation part
-
+#3.2 Single optimisation
 #try testing different algorithms that need no gradiant
 #but SimulatedAnnealing used even more than 5000 steps and still not succeed
-#res = Optim.optimize(g, cf_0,SimulatedAnnealing(), Optim.Options(g_tol = 1e-8,iterations = 5000)) #actual optimisation process
 #so we used the default algo - Nelder-Mead
 resNM = Optim.optimize(g, cf_0)
 answer = Optim.minimizer(resNM)
@@ -188,7 +170,7 @@ g(answer)
 eqn = Polynomials.Polynomial(round.(answer[1:5],digits = 3))
 plot(eqn, legendposition = :topright, xlim = (-1,1))
 
-#we will do repeated optimisation as the answer seems inconsistant depending on the initial guesses
+#3.3 we will do repeated optimisation as the answer seems inconsistant depending on the initial guesses
 nOptround = 10
 colbynOptround = range(HSL(colorant"red"), stop=HSL(colorant"purple"), length=nOptround)
 cf_0_list = Vector{Vector{Float64}}(undef,nOptround)
@@ -202,7 +184,7 @@ end
 cf_0_list #random initial cf for all 10 runs
 cf_final_list #final cf for all 10 runs
 
-#visualisation - with equations
+#3.4 visualisation - with equations
 plot(title = "fitted-δL",legendposition = :outerbottom, palette = colbynOptround,xlab = "Nutrient (n)", ylab = "dILf(n) output")
 for i in 1:nOptround
     answer = cf_final_list[i]
@@ -220,7 +202,7 @@ fitted_δIplot = current()
 plot(fitted_δLplot,fitted_δIplot, layout = (2,1), titlefontsize = 10, size = (500,900), guidefontsize = 10)
 hcat(cf_0_list,cf_final_list)
 
-#visualisation - clearer
+#3.5 visualisation - clearer
 n = 0:0.01:1 #nutrient in our system
 dLfitted = similar(n)
 dIfitted = similar(n)
