@@ -5,14 +5,14 @@ ____________________________________________________
 
 🦠The folders are:
 
-1. RelevantDocument - Two presentations and the write-up of this project
+1. RelevantDocument - Two presentations (not cited) and the write-up of this project (properly cited)
 2. ExperimentalData - biofilm data of YFP reporter (motile cells) and RFP reporter (matrix cells), described in the write-up
 3. SupplementaryVideo - video of data or the simulation outputs, described in the write-up
 4. DataSimOut-ForOptimise - normalised YFP and RFP signals and the simulation output of nutrient and bacterial density given by the fitted NuBacPDE, and the look-up tables from stoIRL run with specific complexing constants (i.e. the outputs of Method 1-4, which are the inputs of Method 5)
 5. FinalSimOut  (Pending)
 ____________________________________________________
 
-🦠The details of all code files are listed below.
+🦠The details of all code files in are listed below.
 
 (Note that the names of files follow the section "Materials and Methods" in the write-up of this work (In Doc folder). Hence, the Method 4 in the write-up, which is the parameterisation, was part of the file Method2 and Method3 in this Github). 
 ____________________________________________________
