@@ -1,4 +1,12 @@
 #Method 1: Data processing steps
+import Pkg
+Pkg.add("CSV")
+Pkg.add("DelimitedFiles")
+Pkg.add("Plots")
+Pkg.add("DataFrames")
+Pkg.add("StatsPlots")
+using CSV,DelimitedFiles
+using Plots, DataFrames, StatsPlots
 
 #Part 1: Data processing - general
 #1.1 import data into two data frames (same dimensions)
@@ -38,34 +46,52 @@ spreadRFPnormplot =
 plot(distanceYR,spreadRFPnorm1,legend = true, legendfontsize = 1, ylabel = "Intensity", xlabel = "Distance from centre (microns)", palette = colbytime, legendposition = :outerright, title = "RFP signal (end values removed) over time", titlefontsize = 10, ylim = (0,40))
 scatter!(distanceYR,[spreadRFPnorm1[:,1] spreadRFPnorm1[:,end]],markersize = 1, marker = :cross, markerstrokewidth = 1, color = :black)
 
-#1.4: Normalised with bg noise common for all time points
-#1.4.1 inspect at the 1st time slice when we know that RFP (matrix) should be 0, but it is not, so we normalise them further 
+#1.3.3 : Normalised with bg noise common for all time points
+#inspect at the 1st time slice when we know that RFP (matrix) should be 0, but it is not, so we normalise them further 
 nn = 1
-inc = 10
-pbefore = plot()
-plot!(distanceYR,spreadYFPnorm1[:,nn], label = "YFP at $(nn)", color = :goldenrod, ls = :dash)
-plot!(distanceYR,spreadRFPnorm1[:,nn], label = "RFP at $(nn)", color = :red4, ls = :dash)
-plot!(distanceYR,spreadYFPnorm1[:,nn+inc], label = "YFP at $(nn+inc)", color = :goldenrod2)
-plot!(distanceYR,spreadRFPnorm1[:,nn+inc], label = "RFP at $(nn+inc)",color = :red3)
-#1.4.2 decide the cutoffs and plot on the same graph
+inc = 14
+inc2 = 19
+pRFP = plot()
+#plot!(distanceYR,spreadYFPnorm1[:,nn], label = "YFP at $(TimeInterval[nn]), early", color = :goldenrod, ls = :dash, lw = 2)
+plot!(distanceYR,spreadRFPnorm1[:,nn], label = "RFP at $(TimeInterval[nn]) hr", color = :black, lw = 2)
+#plot!(distanceYR,spreadYFPnorm1[:,nn+inc], label = "YFP at $(TimeInterval[nn+inc]), late", color = :goldenrod2, lw = 2, ylabel = "Intensity", xlabel = "Distance from centre (microns)")
+plot!(distanceYR,spreadRFPnorm1[:,nn+inc], label = "RFP at $(TimeInterval[nn+inc]) hr",color = :red, lw =2)
+plot!(distanceYR,spreadRFPnorm1[:,nn+inc2], label = "RFP at $(TimeInterval[nn+inc2]) hr",color = :pink, lw =2)
+#decide the cutoffs and plot on the same graph
 linetonormaliseRFP = (-1.2/10000).*distanceYR .+ 1.2 #this is of RFP
 linetonormaliseYFP = 0.2 #this is of YFP
+plot!(distanceYR,linetonormaliseRFP, label = "RFP cutoff line", color = :blue,ylabel = "Intensity", xlabel = "Distance from centre (microns)")
 
-#1.4.3 therefore, we normalised the data again with these lines
+nn = 1
+inc = 14
+inc2 = 19
+pYFP = plot()
+#plot!(distanceYR,spreadYFPnorm1[:,nn], label = "YFP at $(TimeInterval[nn]), early", color = :goldenrod, ls = :dash, lw = 2)
+plot!(distanceYR,spreadYFPnorm1[:,nn], label = "RFP at $(TimeInterval[nn]) hr", color = :black, lw = 2)
+#plot!(distanceYR,spreadYFPnorm1[:,nn+inc], label = "YFP at $(TimeInterval[nn+inc]), late", color = :goldenrod2, lw = 2, ylabel = "Intensity", xlabel = "Distance from centre (microns)")
+plot!(distanceYR,spreadYFPnorm1[:,nn+inc], label = "RFP at $(TimeInterval[nn+inc]) hr",color = :red, lw =2)
+plot!(distanceYR,spreadYFPnorm1[:,nn+inc2], label = "RFP at $(TimeInterval[nn+inc2]) hr",color = :pink, lw =2)
+hline!([linetonormaliseYFP], label = "YFP cutoff line", color = :blue,ylabel = "Intensity", xlabel = "Distance from centre (microns)")
+
+#1.3.4 therefore, we normalised the data again with these lines
 spreadYFPnorm = spreadYFPnorm1 .- linetonormaliseYFP #remove noise below YFP cutoff
 spreadRFPnorm = spreadRFPnorm1 .- linetonormaliseRFP #remove noise below RFP cutoff
 #make negative signal to zero
 spreadYFPnorm[spreadYFPnorm .<0] .= 0.
 spreadRFPnorm[spreadRFPnorm .<0] .= 0.
+CSV.write("spreadYFPnorm_double.csv", Tables.table(spreadYFPnorm))
+CSV.write("spreadRFPnorm_double.csv", Tables.table(spreadRFPnorm))
 
-#1.4.4 visualise the doubly normalised signals
+#1.3.5 visualise the doubly normalised signals
 spreadYFPnormplot2 = 
 plot(distanceYR,spreadYFPnorm,legend = true, legendfontsize = 1, ylabel = "Intensity", xlabel = "Distance from centre (microns)", palette = colbytime, legendposition = :outerright, title = "YFP signal (end + base removed) over time", titlefontsize = 10, ylim = (0,40))
 scatter!(distanceYR,[spreadYFPnorm[:,1] spreadYFPnorm[:,end]],markersize = 1, marker = :cross, markerstrokewidth = 1, color = :black)
 spreadRFPnormplot2 = 
 plot(distanceYR,spreadRFPnorm,legend = true, legendfontsize = 1, ylabel = "Intensity", xlabel = "Distance from centre (microns)", palette = colbytime, legendposition = :outerright, title = "RFP signal (end + base removed) over time", titlefontsize = 10, ylim = (0,40))
 scatter!(distanceYR,[spreadRFPnorm[:,1] spreadRFPnorm[:,end]],markersize = 1, marker = :cross, markerstrokewidth = 1, color = :black)
-#1.4.5 Summary all plots
+plot!(legendfontsize = 5)
+
+#1.3.6 Summary all plots
 ppraw = 
 plot(spreadYFPplot,spreadRFPplot, layout = (2,1), size = (800,800),legend =false, plot_title = "Experimental Dual Reporter Data") 
 ppbefore = 
@@ -75,7 +101,7 @@ plot(spreadYFPnormplot2,spreadRFPnormplot2, layout = (2,1), size = (800,800),leg
 ppraw
 pcompare = plot(ppraw ,ppafter, layout = (1,2), plot_title = "Comparison", title = " ")
 
-#1.4.6 animate the doubly normalised signals over time
+#1.3.7 animate the doubly normalised signals over time
 anim_doublenormYR = @animate for i in 1:Ntimepoint 
     plot(distanceYR,spreadYFPnorm[:, i], ylim = (0,30), lw = 2, label = "YFP - Motility", color = :goldenrod)
     plot!(distanceYR,spreadRFPnorm[:, i], ylim = (0,30),  lw = 2, label = "RFP - Matrix", color = :red4)
@@ -83,7 +109,17 @@ anim_doublenormYR = @animate for i in 1:Ntimepoint
 end
 gif(anim_doublenormYR,fps = 6)
 
-#1.5 We can calculate the total signals for each time over all the distance (whole biofilm) for each signal
+#1.3.8 Two growing mass of YFP
+nn = 20
+inc = 50
+inc2 = 90
+pYFP = plot()
+plot!(distanceYR,spreadYFPnorm[:,nn], label = "YFP at $(TimeInterval[nn]) hr, early", color = :gold2 , lw = 2)
+plot!(distanceYR,spreadYFPnorm[:,nn+inc], label = "YFP at $(TimeInterval[nn+inc]) hr, middle", color = :darkgoldenrod2, lw = 2, ylabel = "Intensity", xlabel = "Distance from centre (microns)")
+plot!(distanceYR,spreadYFPnorm[:,nn+inc2], label = "YFP at $(TimeInterval[nn+inc2]) hr, late",color = :darkgoldenrod4, lw =2)
+
+
+#1.4 We can calculate the total signals for each time over all the distance (whole biofilm) for each signal
 function allRingISum(Iv,Rv)
     eachRingA = 2*pi*Bandw .*Rv
     eachRingA[eachRingA.<0] .= 0
@@ -97,6 +133,40 @@ spreadRFPnorm_sum = allRingISum(spreadRFPnorm,distanceYR)
 psigwhole = plot(TimeInterval,[spreadYFPnorm_sum', spreadRFPnorm_sum'],lw = 2, color = [:goldenrod :red4], label = ["YFP-motile" "RFP-matrix"], title = "whole biofilm signals", xlab = "Time (hrs)", ylab = "Intensity", xticks = TimeInterval[1:20:end])
 #we can see the log phase of both population and see the stationary phases after around 40th hr for YFP and around 50th hr of RFP population
 
+function FindFrontData(spreadRFPnorm,spreadYFPnorm,thre)
+    maxSigR = maximum(spreadRFPnorm)
+    maxSigY = maximum(spreadYFPnorm)
+    bfront = Vector{Int64}(undef,Ntimepoint);
+    Ybfrontdis = Vector{Float64}(undef,Ntimepoint);
+    Rbfrontdis = Vector{Float64}(undef,Ntimepoint);
+    #2.1.1 front threshold is 1,1.5,2,5,or 10% of the max, below is 0.1 (10%)
+    for j in 1:Ntimepoint
+        for i in reverse(1:Ndistance)
+            if spreadYFPnorm[i,j] .> thre*maxSigY 
+                bfront[j]= i
+                Ybfrontdis[j] = distanceYR[bfront[j]]
+            break 
+            else 
+                bfront[j]= 0
+                Ybfrontdis[j] = 0
+            end
+        end
+    end
+    for j in 1:Ntimepoint
+        for i in reverse(1:Ndistance)
+            if spreadRFPnorm[i,j] .>thre*maxSigR
+                bfront[j]= i
+                Rbfrontdis[j] = distanceYR[bfront[j]]
+            break
+            else 
+                bfront[j]= 0
+                Rbfrontdis[j] = 0
+            end
+        end
+    end
+    return (Ybfrontdis,Rbfrontdis)
+end
+
 #Part 2: Data processing - plotting front and max
 #2.1 plotting front
 maxSigR = maximum(spreadRFPnorm)
@@ -105,7 +175,7 @@ maxSigY = maximum(spreadYFPnorm)
 bfront = Vector{Int64}(undef,Ntimepoint);
 Ybfrontdis = Vector{Float64}(undef,Ntimepoint);
 Rbfrontdis = Vector{Float64}(undef,Ntimepoint);
-#2.1.1 front threshold is 1,1.5,2,5,or 10% of the max, below is 0.1 (10%)
+#2.1.1 front threshold is 10% of the max
 for j in 1:Ntimepoint
     for i in reverse(1:Ndistance)
         if spreadYFPnorm[i,j] .> 0.1*maxSigY 
@@ -159,9 +229,10 @@ for j in 1:Ntimepoint
         end
     end
 end
-pmaxsigmove = plot(TimeInterval,[Ybbmaxdis Rbbmaxdis], color = [:goldenrod :red4], title = "The movement of the maximum signal", xlab = "Time (hrs)", ylab = "Distance from the centre", label = ["max YFP" "max RFP"], lw = 1, marker = :circle, ms = 2, markeralpha = 1,xticks = TimeInterval[1:20:end])
-vline!([TimeInterval[14]], label = "t = $(round(TimeInterval[14], digits = 1))", color = :goldenrod, ls = :dash)
-vline!([TimeInterval[106]], label = "t = $(round(TimeInterval[106], digits = 1))", color = :red4, ls = :dash)
+pmaxsigmove = plot(TimeInterval,[Ybbmaxdis Rbbmaxdis], color = [:goldenrod :red2], title = "The movement of the maximum signals", xlab = "Time (hrs)", ylab = "Distance from the centre", label = ["max YFP" "max RFP"], lw = 1, marker = :circle, ms = 2, markeralpha = 1,xticks = TimeInterval[1:20:end])
+vline!([TimeInterval[11]], label = "t = $(round(TimeInterval[11], digits = 1))", color = :blue, ls = :dash, lw = 1.5)
+vline!([TimeInterval[21]], label = "t = $(round(TimeInterval[21], digits = 1))", color = :blueviolet, ls = :dash, lw = 1.5)
+vline!([TimeInterval[106]], label = "t = $(round(TimeInterval[106], digits = 1))", color = :green3, ls = :dash, lw = 1.5)
 #2.3 plotting max values 
 Rsignalmax = Vector{Float64}(undef,Ntimepoint);
 for ti in 1:Ntimepoint
@@ -173,3 +244,4 @@ for ti in 1:Ntimepoint
 end
 pmaxsigvalue = plot(TimeInterval,[Ysignalmax Rsignalmax], color = [:goldenrod :red4], label = ["YFP-motile" "RFP-matrix"], title = "Maximum signals", xlab = "Time (hrs)", ylab = "Intensity", xticks = TimeInterval[1:20:end], ylims = (0,30),lw = 1, marker = :circle, ms = 2, markeralpha = 1)
 plot(pmaxsigmove,pmaxsigvalue, layout = (2,1))
+
