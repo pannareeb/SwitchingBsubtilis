@@ -1,3 +1,5 @@
+#Part 4 in Method 2 - Testing the effect of noises depending on the values of di and dl as inputs
+#need HPC as it take a long time for one combination of di and dl (as we use nsim = 500)
 import Pkg
 Pkg.add("Catalyst")
 Pkg.add("Latexify")
@@ -44,7 +46,7 @@ function TestNoise4(di,dl)
     nsim = 500
     u0HiR = Dict(:I => 100, :R => 300, :L => 100)
     u0LoR = Dict(:I => 100, :R => 100, :L => 100)
-    tspan = (0.0,100.0)
+    tspan = (0.0,500.0)
     u0 = u0HiR
         p = Dict(:α_0=> 85,:β_0=>100, :γ=>125, :δ_I=>di,:δ_L=>dl)
         Solu = Vector{Vector{Vector{Float64}}}(undef, nsim)
@@ -92,43 +94,28 @@ function TestNoise4(di,dl)
     plot(pspace,hh2, layout = grid(1,2, widths = [0.1,0.9]))
 end
 
-TestNoise4(0.4,0.4)
-savefig("Stari04l04_real.svg")
-TestNoise4(0.4,2.)
-savefig("Stari04l20_real.svg")
+#here are di and dl we wanted to test, can also put in for-loop for a large scale scanning
 
-# TestNoise4(0.8,0.8)
-# savefig("i08l08.png")
-# TestNoise4(0.8,4.)
-# savefig("i08l40.png")
+TestNoise4(0.4,0.4)
+savefig("Stari04l04_real_t500.svg")
+TestNoise4(0.4,2.)
+savefig("Stari04l20_real_t500.svg")
 
 TestNoise4(1.2,1.2)
-savefig("Stari12l12_real.svg")
+savefig("Stari12l12_real_t500.svg")
 TestNoise4(1.2,6.)
-savefig("Stari12l60_real.svg")
+savefig("Stari12l60_real_t500.svg")
 
 TestNoise4(2.,2.)
-savefig("Stari20l20_real.svg")
+savefig("Stari20l20_real_t500.svg")
 TestNoise4(2.,10.)
-savefig("Stari20l100_real.svg")
+savefig("Stari20l100_real_t500.svg")
 
 TestNoise4(4.,4.)
-savefig("Stari40l40_real.svg")
+savefig("Stari40l40_real_t500.svg")
 TestNoise4(4.,20.)
-savefig("Stari40l200_real.svg")
-
-# TestNoise4(8.,8.)
-# savefig("Stari80l80.svg")
-# TestNoise4(8.,40.)
-# savefig("i80l400.png")
+savefig("Stari40l200_real_t500.svg")
 
 TestNoise4(10.,10.)
-savefig("Stari100l100_real.svg")
-# TestNoise4(10.,20.)
-# savefig("Stari100l200.svg")
-# TestNoise4(10.,30.)
-# savefig("i100l300.png")
-# TestNoise4(10.,40.)
-# savefig("i100l400.png")
-# TestNoise4(10.,50.)
-# savefig("i100l500.png")
+savefig("Stari100l100_real_t500.svg")
+
