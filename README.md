@@ -21,30 +21,31 @@ ____________________________________________________
 2. #Part 2: focused data processing - plotting the movement of the front with several front thresholds and maximum signals of YFP or RFP
 ____________________________________________________
 🧫Method2_local: single cell IRL-ODE model
-1. #Part 1: create model, using Catalyst.jl
+1. #Part 1: create ODE model of SinI-SinR-SlrR (IRL), using Catalyst.jl
 2. #Part 2: run both deterministic and stochastic ODE and visualisation
 3. #Part 3: IRL-ODE parameterisation - scanning binding constants using analytical solution for finding RSS values and eigenvalues (with additional R codes for plotting bifurcation diagram) 
 
-🧫Method2_HPC: Scanning the effect of noises on % of switch with either highR0 or lowR0 initial condition set and visualisation using histrogram. Used with HPC.  
+🧫Method2_HPC: TestNoise4(di,dl) is a function that test the effect of noises on %switch with either highR0 or lowR0 initial condition set and visualisation using histrogram. It can be used for scanning the effect of noises as a function of di and dl. Used with HPC.  
 ____________________________________________________
 🧫Method3_local: biofilm level NuBac-PDE model
-1. #Part 1: create model, using MethodOfLines.jl
+1. #Part 1: create PDE model, using MethodOfLines.jl
 2. #Part 2: run deterministic PDE and visualisation
-3. #Part 3: PDE parameterisation - scanning the diffusion coefficient of bacteria (Db) using loss function of the front movement difference
-
-🧫Method3_HPC: Scanning Db (diffusion coefficient of bacteria in NuBac-PDE), nr and ny (fluorescence coefficients of RFP and YFP, respectively) and visualisation using heatmap. Used with HPC.
+3. #Part 3: PDE parameterisation - scanning the diffusion coefficient of bacteria (Db) using loss function of the front movement difference, followed by the scanning of nr and ny (fluorescence coefficients of RFP and YFP, respectively) using all points in biofilms, and visualisation using heatmap.
 ____________________________________________________
 (Method4 in the write-upwere part 3 of Method2local and Method3local files and also include the whole code in Method2HPC and Method3HPC)
 ____________________________________________________
 🧫Method5_HPC: Creating the lookup tables for %Motile phase (and %Matrix phase) with a high R0 ic and low R0 ic, created by a given combination of the complexing constants. Note that to prevent time-limit exceeding, spliting cases into several files are recommendend. The range of each of the complexing constants to create the entries for was no need to be more than 10.
 
 🧫Method5_1_local: 
-1. Using the NuBac-PDE model prediction with the lookup tables (created by stoIRL ODE runs), to form a loss function g(cf) that calculate the sum of squared deviation between the two. 
-2. It is then optimised using Optim.jl and visualisation.
+1. Preparation of data and model output
+2. Set up functions for link function and the loss function to optimise (a loss function g(cf) calculate the sum of squared deviation between the the NuBac-PDE model prediction with the lookup tables)
+3. It is then optimised using Optim.jl and visualisation.
+4. Intial checks of link function for relevant statistics.
 
 🧫Method5_2_local: Using the parameterised link function from Method5.1 to predict the system behaviours of the growing biofilm 
-1. detIRL run - without noise included 
-2. stoIRL run - with noise included
+1. Import and create basics
+2. Set up main functions for testing of the candidate model (or a list of candidate models)
+3. Runs of those functions inoutting model of interest
 ____________________________________________________
 
 🧫slurm_example: slurm plain text file to be used for running julia in HPC.
