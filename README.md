@@ -45,7 +45,7 @@ ____________________________________________________
 🧫Method5_2_local: Using the parameterised link function from Method5.1 to predict the system behaviours of the growing biofilm 
 1. Import and create basics
 2. Set up main functions for testing of the candidate model (or a list of candidate models)
-3. Runs of those functions inoutting model of interest
+3. Runs of those checking functions inputting model of interest
 ____________________________________________________
 
 🧫slurm_example: slurm plain text file to be used for running julia in HPC.
